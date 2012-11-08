@@ -1,0 +1,230 @@
+#!/usr/bin/perl -w
+#
+# smtpprox-loopprevent
+# 
+# Transparent SMTP proxy to prevent mail forwarding loops
+#
+# smtpprox-loopprevent is a transparent SMTP proxy
+# which compares message recipient addresses against
+# Delivered-To headers and rejects the message
+# if there is a match.
+#
+# It was written to be used as a Postfix before-queue filter.
+#
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#
+# This file incorporates work covered by the following copyright and
+# permission notice.
+#
+#  #   This code is Copyright (C) 2001 Morgan Stanley Dean Witter, and
+#  #   is distributed according to the terms of the GNU Public License
+#  #   as found at <URL:http://www.fsf.org/copyleft/gpl.html>.
+#  #
+#  # Written by Bennett Todd <bet@rahul.net>
+#
+#
+# See  https://github.com/jnorell/smtpprox-loopprevent
+#
+# Copyright 2012 Jesse Norell <jesse@kci.net>
+# Copyright 2012 Kentec Communications, Inc.
+
+use strict;
+use Getopt::Long;
+use IO::File;
+use lib '.';
+use MSDW::SMTP::Server;
+use MSDW::SMTP::Client;
+use Mail::Header;
+use Mail::Address;
+
+=head1 NAME
+
+  smtpproxy-loopprevent -- Transparent SMTP proxy to prevent mail forwarding loops
+
+=head1 SYNOPSIS
+
+  smtpproxy-loopprevent [options] listen.addr:port talk.addr:port
+    options:
+      --children=16
+      --minperchild=100
+      --maxperchild=200
+      --debugtrace=filename_prefix
+
+=head1 DESCRIPTION
+
+smtpproxy-loopprevent is a postfix before-queue smtp proxy that looks at
+Delivered-To: headers in the message, compares those with the
+message recipients, and kicks out the message if there is a match.
+
+This was written to reject spam with forged Delivered-To: headers,
+but may be useful to prevent actual mail forwarding loops in some
+situations.
+
+Please understand your mail system before using smtpproxy-loopprevent,
+as it may reject legitimate mail, especially for messages with multiple
+recipients.  It seems fairly safe with a single recipient, which
+would likely just bounce later as a mail forwarding loop.
+
+smtpproxy-loopprevent is a lightly modified smtpprox.  As such its
+operation is nearly identical, and the following (from smtpprox)
+applies to smtpproxy-loopprevent as well:
+
+smtpprox listens on the addr and port specified by its first arg,
+and sends the traffic unmodified to the SMTP server whose addr and
+port are listed as its second arg. The SMTP dialogue is propogated
+literally, all commands from the client are copied to the server and
+the responses from the server are copied back from to the client,
+but the envelope info and message bodies are captured for analysis,
+and code has the option of modifying the body before sending it on,
+manipulating the envelope, or intervening in the SMTP dialogue to
+reject senders, recipients, or content at the SMTP level. The
+children option, defaulting to 16, allows adjusting how many child
+processes will be maintained in the service pool. Each child will
+kill itself after servicing some random number of messages between
+minperchild and maxperchild (100-200 default), after which the
+parent will immediately fork another child to pick up its share of
+the load. If debugtrace is specified, the prefix will have the PID
+appended to it for a separate logfile for each child, which will
+capture all the SMTP dialogues that child services. It looks like a
+snooper on the client side of the proxy. And if debugtracefile is
+defined, it returns its own banner including its PID for debugging
+at startup, otherwise it copies the server's banner back to the
+client transparently.
+
+=head1 EXAMPLE
+
+	smtpproxy-loopprevent 127.0.0.1:10025 127.0.0.1:10026
+
+=head1 BUGS
+
+This uses Mail::Address from the commonly available MailTools bundle,
+which doesn't handle encoding.  It may be fairly easy to get around
+the current checks by encoding the recipient address.  If/when
+that becomes a problem a switch to the more complete Mail-Box
+distribution should be done.
+
+=head1 TODO
+
+Could make a "safe mode" that rejects only if the message has
+a single recipient.
+
+=head1 MORE
+
+The latest version, documentation, etc. is available at:
+
+    https://github.com/jnorell/smtpprox-loopprevent
+
+=cut
+
+my $syntax = "syntax: $0 [--children=16] [--minperchild=100] ".
+             "[--maxperchild=200] [--debugtrace=undef] ".
+             "listen.addr:port talk.addr:port\n";
+
+my $children = 16;
+my $minperchild = 100;
+my $maxperchild = 200;
+my $debugtrace = undef;
+GetOptions("children=n" => \$children,
+	   "minperchild=n" => \$minperchild,
+	   "maxperchild=n" => \$maxperchild,
+	   "debugtrace=s" => \$debugtrace) or die $syntax;
+
+die $syntax unless @ARGV == 2;
+my ($srcaddr, $srcport) = split /:/, $ARGV[0];
+my ($dstaddr, $dstport) = split /:/, $ARGV[1];
+die $syntax unless defined($srcport) and defined($dstport);
+
+my $server = MSDW::SMTP::Server->new(interface => $srcaddr, port => $srcport);
+
+# This should allow a kill on the parent to also blow away the
+# children, I hope
+my %children;
+use vars qw($please_die);
+$please_die = 0;
+$SIG{TERM} = sub { $please_die = 1; };
+
+# This block is the parent daemon, never does an accept, just herds
+# a pool of children who accept and service connections, and
+# occasionally kill themselves off
+PARENT: while (1) {
+    while (scalar(keys %children) >= $children) {
+	my $child = wait;
+	delete $children{$child} if exists $children{$child};
+	if ($please_die) { kill 15, keys %children; exit 0; }
+    }
+    my $pid = fork;
+    die "$0: fork failed: $!\n" unless defined $pid;
+    last PARENT if $pid == 0;
+    $children{$pid} = 1;
+    select(undef, undef, undef, 0.1);
+    if ($please_die) { kill 15, keys %children; exit 0; }
+}
+
+# This block is a child service daemon. It inherited the bound
+# socket created by SMTP::Server->new, it will service a random
+# number of connection requests in [minperchild..maxperchild] then
+# exit
+
+my $lives = $minperchild + (rand($maxperchild - $minperchild));
+my %opts;
+if (defined $debugtrace) {
+	$opts{debug} = IO::File->new(">$debugtrace.$$");
+	$opts{debug}->autoflush(1);
+}
+
+while (1) {
+    $server->accept(%opts);
+    my $client = MSDW::SMTP::Client->new(interface => $dstaddr, port => $dstport);
+    my $banner = $client->hear;
+    $banner = "220 $debugtrace.$$" if defined $debugtrace;
+    $server->ok($banner);
+    while (defined($client) && (my $what = $server->chat)) {
+	if ($what eq '.') {
+        my $failed = 0;
+        my %rcpts = ();
+        my $to; my $a;
+        foreach $to (@{$server->{to}}) {
+            foreach $a (Mail::Address->parse($to)) {
+                $rcpts{(lc $a->address())} = 1;
+            }
+        }
+        my $head = Mail::Header->new($server->{data});
+        if (my $cnt = $head->count('Delivered-To') > 0) {
+            $head->unfold('Delivered-To');
+            while ($cnt-- > 0) {
+                @_ = Mail::Address->parse($head->get('Delivered-To', $cnt));
+                if (exists $rcpts{(lc $_[0]->address())}) {
+                    $server->fail("554 5.4.6 possible mail forwarding loop for ".$_[0]->address());
+                    $failed++;
+                }
+            }
+        }
+
+        if ($failed) {
+            $client = undef;
+        } else {
+            $server->{data}->seek(0,0);
+            $client->yammer($server->{data});
+        }
+	} else {
+	    $client->say($what);
+	}
+	$server->ok(($client) ? $client->hear : '');
+    }
+    $client = undef;
+    delete $server->{"s"};
+    exit 0 if $lives-- <= 0;
+}
