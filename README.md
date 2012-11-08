@@ -3,6 +3,7 @@ smtpprox-loopprevent
 
 Transparent SMTP proxy to prevent mail forwarding loops
 
+
 Description
 -----------
 
@@ -10,6 +11,7 @@ Description
 message recipient addresses against Delivered-To headers
 and rejects the message if there is a match.  It was written
 to be used as a Postfix before-queue filter.
+
 
 Reason and Background
 ---------------------
@@ -47,6 +49,7 @@ envelope info, but not access to the message headers.  So a
 before-queue content filter is the only place I see to get at both
 and have SMTP rejection available.
 
+
 What Harm Can It Do?
 --------------------
 
@@ -54,4 +57,17 @@ What Harm Can It Do?
 for many sites, but do understand the implications of using it on
 yours.  Again, it rejects a message if *any* of the recipient
 addresses match a *Delivered-To* header.
+
+
+Installation
+------------
+
+As the name indicates, *smtpprox-loopprevent* is a modified
+[smtpprox](http://bent.latency.net/smtpprox/).  A copy of *smtpprox*
+is included, you might read the comments at the top.
+
+You need the MSDW/SMTP/{Client,Server}.pm files from *smtpprox*
+in your perl library path.  You may already have them, eg. dkimproxy
+provides them, but if not just copy to /usr/local/lib/site\_perl/ or
+similar.
 
