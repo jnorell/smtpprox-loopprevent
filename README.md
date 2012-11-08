@@ -7,7 +7,7 @@ Transparent SMTP proxy to prevent mail forwarding loops
 Description
 -----------
 
-*smtpprox-loopprevent* is a transparent SMTP proxy which compares
+`smtpprox-loopprevent` is a transparent SMTP proxy which compares
 message recipient addresses against Delivered-To headers
 and rejects the message if there is a match.  It was written
 to be used as a Postfix before-queue filter.
@@ -62,12 +62,33 @@ addresses match a *Delivered-To* header.
 Installation
 ------------
 
-As the name indicates, *smtpprox-loopprevent* is a modified
-[smtpprox](http://bent.latency.net/smtpprox/).  A copy of *smtpprox*
-is included, you might read the comments at the top.
+As the name indicates, `smtpprox-loopprevent` is a modified
+[smtpprox](http://bent.latency.net/smtpprox/ "smtpprox").
+A copy of `smtpprox` is included, you might read the documentation
+and comments at the top.
 
-You need the MSDW/SMTP/{Client,Server}.pm files from *smtpprox*
+You need the **MSDW/SMTP/{Client,Server}.pm** files from `smtpprox`
 in your perl library path.  You may already have them, eg. dkimproxy
 provides them, but if not just copy to /usr/local/lib/site\_perl/ or
 similar.
+
+You also need the **[MailTools](http://search.cpan.org/dist/MailTools/)** library.
+
+Select 2 TCP ports to use, one for `smtpprox-loopprevent` to listen on
+(postfix delivers here for filtering), and one for postfix `smtpd`
+to listen on (smtpprox-loopprevent forwards mail here).
+Let's use **10025** and **10026**, just like the example in 
+[SMTPD_PROXY_README](http://www.postfix.org/SMTPD_PROXY_README.html "SMTPD_PROXY_README")
+
+Start `smtpprox-loopprevent` using those ports:
+
+  smtpprox-loopprevent  127.0.0.1:10025  127.0.0.1:10026
+
+Configure `/etc/postfix/master.cf` - see the full page for details,
+but you can probably cut/paste config right from
+[the postfix config example](http://www.postfix.org/SMTPD_PROXY_README.html#config "postfix config example").
+
+Reload postfix, and now you're up and running.  You'll need to
+create an init script or otherwise arrange for `smtpprox-loopprevent`
+to start up after reboot.
 
