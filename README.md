@@ -38,11 +38,7 @@ The diagnostic-code says "mail forwarding loop for user@domain".
 Upon examination, this spam has a forged Delivered-To: header
 added before we even receive it.
 
-<<<<<<< HEAD
 Mail destined to *user@domain*, with a *Delivered-To: user@domain*
-=======
-Mail destined to *user@domain*, with a \"*Delivered-To: user@domain*\"
->>>>>>> ad83092e791caf43e08933f1c3bcafd81919c35e
 header?  That's exactly what a mail loop looks like, and why
 postfix rejects it.  All well and good - we just need to move
 that rejection into SMTP, rather than generating bounces.
