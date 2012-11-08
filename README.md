@@ -59,36 +59,26 @@ yours.  Again, it rejects a message if *any* of the recipient
 addresses match a *Delivered-To* header.
 
 
-Installation
-------------
+Copyright
+---------
 
-As the name indicates, `smtpprox-loopprevent` is a modified
-[smtpprox](http://bent.latency.net/smtpprox/ "smtpprox").
-A copy of `smtpprox` is included, you might read the documentation
-and comments at the top.
+Copyright 2012 Jesse Norell <jesse@kci.net>
+Copyright 2012 Kentec Communications, Inc.
 
-You need the **MSDW/SMTP/{Client,Server}.pm** files from `smtpprox`
-in your perl library path.  You may already have them, eg. dkimproxy
-provides them, but if not just copy to /usr/local/lib/site\_perl/ or
-similar.
 
-You also need the **[MailTools](http://search.cpan.org/dist/MailTools/)** library.
+License
+-------
 
-Select 2 TCP ports to use, one for `smtpprox-loopprevent` to listen on
-(postfix delivers here for filtering), and one for postfix `smtpd`
-to listen on (smtpprox-loopprevent forwards mail here).
-Let's use **10025** and **10026**, just like the example in 
-[SMTPD_PROXY_README](http://www.postfix.org/SMTPD_PROXY_README.html "SMTPD_PROXY_README")
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-Start `smtpprox-loopprevent` using those ports:
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-  smtpprox-loopprevent  127.0.0.1:10025  127.0.0.1:10026
-
-Configure `/etc/postfix/master.cf` - see the full page for details,
-but you can probably cut/paste config right from
-[the postfix config example](http://www.postfix.org/SMTPD_PROXY_README.html#config "postfix config example").
-
-Reload postfix, and now you're up and running.  You'll need to
-create an init script or otherwise arrange for `smtpprox-loopprevent`
-to start up after reboot.
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
