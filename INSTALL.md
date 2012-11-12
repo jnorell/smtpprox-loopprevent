@@ -23,7 +23,7 @@ Let's use **10025** and **10026**, just like the postfix example.
 
 * Start `smtpprox-loopprevent` using those ports:
 
-  smtpprox-loopprevent  127.0.0.1:10025  127.0.0.1:10026
+    smtpprox-loopprevent  127.0.0.1:10025  127.0.0.1:10026
 
 * Configure `/etc/postfix/master.cf` - see the full page for details,
 but you can probably cut/paste config right from

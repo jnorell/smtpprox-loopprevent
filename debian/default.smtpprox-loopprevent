@@ -1,0 +1,16 @@
+# Configuration for smtpprox-loopprevent 
+
+# smtpprox-loopprevent command line options
+_OPTS=""
+
+# Inet HOST:PORT to receive messages on
+_LISTEN_PORT="127.0.0.1:10025"
+
+# Inet HOST:PORT to send messages to
+_SEND_PORT="127.0.0.1:10026"
+
+# run as USER and GROUP (default: loopprevent:loopprevent)
+# if needed, run:  useradd -m -d /var/lib/smtpprox-loopprevent -U loopprevent
+#_USER="loopprevent"
+#_GROUP="loopprevent"
+

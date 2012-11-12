@@ -207,7 +207,7 @@ while (1) {
             while ($cnt-- > 0) {
                 @_ = Mail::Address->parse($head->get('Delivered-To', $cnt));
                 if (exists $rcpts{(lc $_[0]->address())}) {
-                    $server->fail("554 5.4.6 possible mail forwarding loop for ".$_[0]->address());
+                    $server->fail("554 5.4.6 detected mail forwarding loop for ".$_[0]->address());
                     $failed++;
                 }
             }
