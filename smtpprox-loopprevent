@@ -154,7 +154,7 @@ my $server = MSDW::SMTP::Server->new(interface => $srcaddr, port => $srcport);
 my %children;
 use vars qw($please_die);
 $please_die = 0;
-$SIG{TERM} = sub { $please_die = 1; };
+$SIG{TERM} = sub { $please_die = 1; kill 15, keys %children; exit 0; };
 
 # This block is the parent daemon, never does an accept, just herds
 # a pool of children who accept and service connections, and
@@ -177,6 +177,8 @@ PARENT: while (1) {
 # socket created by SMTP::Server->new, it will service a random
 # number of connection requests in [minperchild..maxperchild] then
 # exit
+
+$SIG{TERM} = sub { exit 0; };
 
 my $lives = $minperchild + (rand($maxperchild - $minperchild));
 my %opts;
