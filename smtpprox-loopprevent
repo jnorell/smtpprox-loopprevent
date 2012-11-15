@@ -44,7 +44,6 @@
 use strict;
 use Getopt::Long;
 use IO::File;
-use lib '.';
 use MSDW::SMTP::Server;
 use MSDW::SMTP::Client;
 use Mail::Header;
