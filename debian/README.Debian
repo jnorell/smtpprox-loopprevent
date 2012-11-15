@@ -2,15 +2,23 @@ smtpprox-loopprevent for Debian
 -------------------------------
 
 smtpprox-loopprevent needs two port numbers, one it listens on and the other
-it uses to forward mail back to postfix.
+it sends to (eg. forwards mail back to postfix here).  Set them in
+/etc/default/smtpprox-loopprevent.
 
- !! You must configure postfix to use smtpprox-loopprevent !!
+
+Postfix
+-------
+
+You must configure postfix to use smtpprox-loopprevent.
 
 There is no one-size-fits-all postfix configuration, you'll have to investigate
 and integrate.  I have copy/pasted the master.cf config example right from
-http://www.postfix.org/SMTPD_PROXY_README.html#config and it has worked.  If you
-have another before-queue content filter (such as dkimproxy), you'll need to
-have one forward to the next.
+http://www.postfix.org/SMTPD_PROXY_README.html#config and it has worked.
+
+If you have another before-queue content filter (such as dkimproxy), you'll
+need to have one forward to the next.  (You might use smtpprox-loopprevent
+first, it's more light-weight.)
+
 
 https://github.com/jnorell/smtpprox-loopprevent/
 
