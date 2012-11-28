@@ -198,6 +198,7 @@ while (1) {
         my %rcpts = ();
         my $to; my $a;
         foreach $to (@{$server->{to}}) {
+            $to =~ s/\s.*//;
             foreach $a (Mail::Address->parse($to)) {
                 $rcpts{(lc $a->address())} = 1;
             }
