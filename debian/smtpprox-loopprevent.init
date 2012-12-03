@@ -21,7 +21,7 @@ NAME=smtpprox-loopprevent
 DAEMON=/usr/sbin/$NAME
 DAEMON_ARGS=""
 PIDDIR=/var/run/$NAME
-PIDFILE=/var/run/$NAME/$NAME.pid
+PIDFILE=${PIDDIR}/$NAME.pid
 SCRIPTNAME=/etc/init.d/$NAME
 
 # Exit if the package is not installed
@@ -42,6 +42,16 @@ DAEMON_ARGS="${DAEMON_ARGS} ${_LISTEN_PORT} ${_SEND_PORT}"
 
 [ -z "$_PIDDIR" ] || PIDDIR=${_PIDDIR}
 [ -z "$_PIDFILE" ] || PIDFILE=${_PIDFILE}
+
+# Check that our user/group exist
+if ! getent passwd | grep -q "^${_USER}:"; then
+    echo "Server user does not exist. Aborting" >&2
+    exit 1
+fi
+if ! getent group | grep -q "^${_GROUP}:" ; then
+    echo "Server group does not exist. Aborting" >&2
+    exit 1
+fi
 
 if [ ! -d ${PIDDIR} ]
 then
@@ -123,7 +133,7 @@ case "$1" in
   status)
        status_of_proc "$DAEMON" "$NAME" && exit 0 || exit $?
        ;;
-  restart)
+  restart|force-reload)
 	log_daemon_msg "Restarting $DESC" "$NAME"
 	do_stop
 	case "$?" in
@@ -142,7 +152,7 @@ case "$1" in
 	esac
 	;;
   *)
-	echo "Usage: $SCRIPTNAME {start|stop|status|restart}" >&2
+	echo "Usage: $SCRIPTNAME {start|stop|status|restart|force-reload}" >&2
 	exit 3
 	;;
 esac

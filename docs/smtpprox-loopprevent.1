@@ -40,6 +40,12 @@ Minimum number of messages serviced by a child process.
 Maximum number of messages serviced by a child process.
 .br
 [default 200]
+.B
+.IP --debugtrace=filename_prefix
+If \fIdebugtrace\fR is specified, the prefix will have the PID
+appended to it for a separate logfile for each child, which will
+capture all the SMTP dialogues that child services. It looks like a
+snooper on the client side of the proxy.
 
 .SH "SEE ALSO"
 \&\fIsmtpprox\fR\|(1)
