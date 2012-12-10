@@ -6,8 +6,6 @@ smtpprox-loopprevent Installation
 
 As the name indicates, `smtpprox-loopprevent` is a modified
 [smtpprox](http://bent.latency.net/smtpprox/ "smtpprox").
-A copy of `smtpprox` is included, you might read the documentation
-and comments at the top.
 
 * You need the **MSDW/SMTP/{Client,Server}.pm** files from `smtpprox`
 in your perl library path.  You may already have them, eg. dkimproxy
