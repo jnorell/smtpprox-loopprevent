@@ -5,10 +5,11 @@ Priority: optional
 Standards-Version: 3.9.3
 Build-Depends: debhelper (>= 8)
 Homepage: https://github.com/jnorell/smtpprox-loopprevent
+Vcs-Browser: https://github.com/jnorell/smtpprox-loopprevent
+Vcs-Git: https://github.com/jnorell/smtpprox-loopprevent.git
 
 Package: smtpprox-loopprevent
 Architecture: all
-# see what we can remove here and let dh_* figure out
 Depends: ${shlibs:Depends}, ${misc:Depends}, ${perl:Depends}, adduser (>= 3.11), lsb-base, libmailtools-perl, libmsdw-smtp-perl | dkimproxy (<= 1.2-6)
 Description: Transparent SMTP proxy to prevent mail forwarding loops
  smtpprox-loopprevent is a transparent SMTP proxy which rejects a message
