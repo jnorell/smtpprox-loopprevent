@@ -7,8 +7,6 @@
 # This has to be exported to make some magic below work.
 export DH_OPTIONS
 
-export DH_ALWAYS_EXCLUDE=smtpprox-1.2
-
 %:
 	dh $@
 
