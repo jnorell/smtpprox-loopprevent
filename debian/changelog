@@ -1,5 +1,5 @@
-smtpprox-loopprevent (0.1) UNRELEASED; urgency=low
+smtpprox-loopprevent (0.1-1) unstable; urgency=low
 
-  * smtpprox-loopprevent initial version.  Closes: #695712
+  * Initial release (Closes: #695712).
 
  -- Jesse Norell <jesse@kci.net>  Wed, 14 Nov 2012 14:03:39 -0700
