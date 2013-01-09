@@ -10,6 +10,7 @@ License: GPL-3.0+
 
 Files: debian/*
 Copyright: 2012 Jesse Norell <jesse@kci.net>
+           2012 Thomas Goirand <zigo@debian.org>
 License: GPL-3.0+
 
 License: GPL-3.0+
