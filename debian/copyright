@@ -1,4 +1,4 @@
-Format: http://dep.debian.net/deps/dep5
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: smtpprox-loopprevent
 Upstream-Contact: Jesse Norell <jesse@kci.net>
 Source: https://github.com/jnorell/smtpprox-loopprevent
