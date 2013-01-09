@@ -3,7 +3,7 @@ Maintainer: Jesse Norell <jesse@kci.net>
 Section: mail
 Priority: optional
 Standards-Version: 3.9.3
-Build-Depends: debhelper (>= 8)
+Build-Depends: debhelper (>= 9)
 Homepage: https://github.com/jnorell/smtpprox-loopprevent
 Vcs-Browser: https://github.com/jnorell/smtpprox-loopprevent
 Vcs-Git: https://github.com/jnorell/smtpprox-loopprevent.git
