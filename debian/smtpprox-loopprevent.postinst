@@ -1,5 +1,5 @@
 #!/bin/sh
-# preinst script for smtpprox-loopprevent
+# postinst script for smtpprox-loopprevent
 
 set -e
 
