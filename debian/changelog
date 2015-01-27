@@ -1,3 +1,9 @@
+smtpprox-loopprevent (0.1-2) UNRELEASED; urgency=medium
+
+  * Fixes error caused by an empty Delivered-To: header.
+
+ -- Jesse Norell <jesse@kci.net>  Tue, 27 Jan 2015 16:32:29 -0700
+
 smtpprox-loopprevent (0.1-1) unstable; urgency=low
 
   * Initial release (Closes: #695712).
