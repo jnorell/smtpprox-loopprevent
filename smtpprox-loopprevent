@@ -208,9 +208,14 @@ while (1) {
             $head->unfold('Delivered-To');
             while ($cnt-- > 0) {
                 @_ = Mail::Address->parse($head->get('Delivered-To', $cnt));
-                if (exists $rcpts{(lc $_[0]->address())}) {
-                    $server->fail("554 5.4.6 detected mail forwarding loop for ".$_[0]->address());
-                    $failed++;
+                foreach my $obj (@_) {
+                    next unless defined $obj->address();
+                    next unless my $addr = $obj->address();
+                    next unless length $addr > 0;
+                    if (exists $rcpts{(lc $addr)}) {
+                        $server->fail("554 5.4.6 detected mail forwarding loop for ".$addr);
+                        $failed++;
+                    }
                 }
             }
         }
